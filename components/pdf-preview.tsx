@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { PDFDownloadLink, PDFViewer, BlobProvider } from '@react-pdf/renderer';
+import { useState, useRef } from 'react';
+import { useReactToPrint } from 'react-to-print';
 import { PDFDocument } from './pdf-document';
 import { SolvedQuestion, PDFLayoutSettings, AssignmentType } from '@/types';
 
@@ -12,59 +12,91 @@ interface PDFPreviewProps {
 }
 
 export function PDFPreview({ questions, settings, assignmentType = 'Code' }: PDFPreviewProps) {
-  const [isClient, setIsClient] = useState(false);
+  const componentRef = useRef<HTMLDivElement>(null);
+  const [isPrinting, setIsPrinting] = useState(false);
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  // Convert px to mm (1px ≈ 0.264583mm at 96dpi)
+  const pxToMm = (px: number) => Math.round(px * 0.264583);
+  
+  const marginTopMm = pxToMm(settings.pageMarginTop ?? 35);
+  const marginBottomMm = pxToMm(settings.pageMarginBottom ?? 35);
+  const marginSideMm = pxToMm(settings.pageMargin ?? 35);
 
-  if (!isClient) {
-    return (
-      <div className="flex items-center justify-center h-96 bg-gray-100 rounded-lg">
-        <div className="text-gray-500">Loading PDF preview...</div>
-      </div>
-    );
-  }
-
-  const document = <PDFDocument questions={questions} settings={settings} assignmentType={assignmentType} />;
+  const handlePrint = useReactToPrint({
+    contentRef: componentRef,
+    documentTitle: assignmentType === 'Code' ? 'code-assignment' : 'assignment',
+    onBeforePrint: () => {
+      setIsPrinting(true);
+      return Promise.resolve();
+    },
+    onAfterPrint: () => {
+      setIsPrinting(false);
+    },
+    // CRITICAL: This pageStyle is injected into the print iframe
+    // It MUST define @page margins to apply to ALL printed pages
+    pageStyle: `
+      @page {
+        size: A4 portrait;
+        margin: ${marginTopMm}mm ${marginSideMm}mm ${marginBottomMm}mm ${marginSideMm}mm;
+      }
+      
+      @media print {
+        html, body {
+          margin: 0 !important;
+          padding: 0 !important;
+          width: 100% !important;
+          height: auto !important;
+          overflow: visible !important;
+        }
+        
+        * {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-adjust: exact !important;
+        }
+        
+        .pdf-document-root {
+          width: 100% !important;
+          max-width: none !important;
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+        
+        .pdf-content-wrapper {
+          padding: 0 !important;
+          margin: 0 !important;
+        }
+      }
+    `,
+  });
 
   return (
     <div className="space-y-4">
       {/* Action Buttons */}
-      <div className="flex gap-3">
-        <PDFDownloadLink
-          document={document}
-          fileName={assignmentType === 'Code' ? "code-assignment.pdf" : "assignment.pdf"}
-          className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium"
+      <div className="flex gap-3 items-center">
+        <button
+          onClick={() => handlePrint()}
+          disabled={isPrinting}
+          className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium disabled:opacity-50"
         >
-          {({ loading }) => (loading ? 'Generating...' : '⬇️ Download PDF')}
-        </PDFDownloadLink>
-
-        <BlobProvider document={document}>
-          {({ url, loading }) => (
-            <button
-              onClick={() => {
-                if (url) {
-                  const printWindow = window.open(url, '_blank');
-                  printWindow?.addEventListener('load', () => {
-                    printWindow.print();
-                  });
-                }
-              }}
-              disabled={loading}
-              className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors font-medium disabled:opacity-50"
-            >
-              {loading ? 'Preparing...' : '🖨️ Print'}
-            </button>
-          )}
-        </BlobProvider>
+          {isPrinting ? 'Preparing...' : '⬇️ Export to PDF / Print'}
+        </button>
+        <span className="text-sm text-gray-500">
+          Margins: Top {marginTopMm}mm, Bottom {marginBottomMm}mm, Sides {marginSideMm}mm
+        </span>
       </div>
 
-      {/* PDF Viewer */}
-      <div className="border border-gray-200 rounded-lg overflow-hidden shadow-lg">
-        <PDFViewer width="100%" height={600} showToolbar={false}>
-          {document}
-        </PDFViewer>
+      {/* Visual A4 Page Container */}
+      <div className="flex justify-center bg-gray-200 p-8 rounded-lg overflow-y-auto max-h-[800px]">
+        {/* Aspect Ratio A4 (210x297mm) approximate visual scale */}
+        <div className="bg-white shadow-2xl rounded-sm w-full max-w-[210mm] min-h-[297mm]">
+          <PDFDocument
+            ref={componentRef}
+            questions={questions}
+            settings={settings}
+            assignmentType={assignmentType}
+          />
+        </div>
       </div>
     </div>
   );

@@ -28,6 +28,7 @@ export interface SolverSettings {
   experienceLevel: string;
   includeOutput: boolean;
   includeExplanation: boolean;
+  verticalCompactness: boolean;
 }
 
 export interface PDFLayoutSettings {
@@ -37,6 +38,8 @@ export interface PDFLayoutSettings {
   fontSize: number;
   lineHeight: number;
   pageMargin: number;
+  pageMarginTop: number;
+  pageMarginBottom: number;
   showLineNumbers: boolean;
   showPageNumbers: boolean;
   headerText: string;

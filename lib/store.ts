@@ -47,6 +47,7 @@ export const useAppStore = create<AppState>()(
         experienceLevel: 'Beginner / Student',
         includeOutput: true,
         includeExplanation: false,
+        verticalCompactness: false,
       },
       pdfSettings: {
         layoutStyle: 'stacked',
@@ -55,6 +56,8 @@ export const useAppStore = create<AppState>()(
         fontSize: 10,
         lineHeight: 1.4,
         pageMargin: 35,
+        pageMarginTop: 35,
+        pageMarginBottom: 35,
         showLineNumbers: true,
         showPageNumbers: true,
         headerText: '',

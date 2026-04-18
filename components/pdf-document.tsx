@@ -1,103 +1,7 @@
 'use client';
 
-import {
-  Document,
-  Page,
-  Text,
-  View,
-  StyleSheet,
-  Font,
-} from '@react-pdf/renderer';
+import React from 'react';
 import { SolvedQuestion, PDFLayoutSettings, AssignmentType } from '@/types';
-
-
-const getStyles = (settings: PDFLayoutSettings) =>
-  StyleSheet.create({
-    page: {
-      padding: settings.pageMargin ?? 35,
-      fontFamily: 'Helvetica',
-      fontSize: settings.fontSize,
-    },
-    header: {
-      fontSize: 10,
-      color: '#666',
-      marginBottom: 15,
-      paddingBottom: 8,
-      borderBottom: '1px solid #ddd',
-    },
-    footer: {
-      position: 'absolute',
-      bottom: 20,
-      left: 35,
-      right: 35,
-      fontSize: 9,
-      color: '#888',
-      textAlign: 'center',
-    },
-    questionContainer: {
-      marginBottom: settings.spacingStyle === 'compact' ? 10 : settings.spacingStyle === 'spacious' ? 30 : 20,
-    },
-    questionTitle: {
-      display: 'none',
-    },
-    problemStatement: {
-      fontSize: settings.fontSize - 1,
-      color: '#333',
-      marginBottom: settings.paragraphSpacing ?? 10,
-      lineHeight: settings.lineHeight ?? 1.4,
-    },
-    sectionLabel: {
-      fontSize: settings.fontSize - 1,
-      fontWeight: 'bold',
-      color: settings.headingColor || '#c75000',
-      marginBottom: 6,
-      marginTop: 10,
-    },
-    codeBlock: {
-      padding: settings.spacingStyle === 'compact' ? 2 : 4,
-      fontFamily: 'Courier',
-      fontSize: settings.fontSize - 2,
-      color: '#1a1a1a',
-      lineHeight: settings.lineHeight ?? 1.4,
-    },
-    outputBlock: {
-      backgroundColor: '#ffffff',
-      padding: settings.spacingStyle === 'compact' ? 6 : 10,
-      borderRadius: 4,
-      fontFamily: 'Courier',
-      fontSize: settings.fontSize - 2,
-      color: '#1a1a1a',
-      border: '1px dashed #d1d5db',
-      lineHeight: settings.lineHeight ?? 1.4,
-    },
-    explanation: {
-      fontSize: settings.fontSize - 1,
-      color: '#444',
-      lineHeight: settings.lineHeight ?? 1.4,
-    },
-    // Side-by-side layout
-    sideBySideContainer: {
-      flexDirection: 'row',
-      gap: settings.spacingStyle === 'compact' ? 8 : 16,
-    },
-    sideBySideColumn: {
-      flex: 1,
-    },
-    divider: {
-      borderBottom: '1px solid #eee',
-      marginTop: settings.spacingStyle === 'compact' ? 10 : 20,
-      marginBottom: settings.spacingStyle === 'compact' ? 10 : 20,
-    },
-    lineNumber: {
-      color: '#6c7086',
-      marginRight: 10,
-      minWidth: 20,
-      textAlign: 'right',
-    },
-    codeLine: {
-      flexDirection: 'row',
-    },
-  });
 
 interface PDFDocumentProps {
   questions: SolvedQuestion[];
@@ -117,20 +21,29 @@ function CodeWithLineNumbers({
   const lines = code.split('\n');
 
   if (!showLineNumbers) {
-    return <Text>{code}</Text>;
+    return <>{code}</>;
   }
 
   return (
-    <View>
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
       {lines.map((line, index) => (
-        <View key={index} style={{ flexDirection: 'row' }}>
-          <Text style={{ color: '#9ca3af', marginRight: 8, minWidth: 16, textAlign: 'right', fontSize: fontSize - 2 }}>
+        <div key={index} style={{ display: 'flex', flexDirection: 'row' }}>
+          <span
+            style={{
+              color: '#9ca3af',
+              marginRight: '8px',
+              minWidth: '16px',
+              textAlign: 'right',
+              fontSize: `${fontSize - 2}px`,
+              userSelect: 'none',
+            }}
+          >
             {index + 1}
-          </Text>
-          <Text style={{ flex: 1 }}>{line || ' '}</Text>
-        </View>
+          </span>
+          <span style={{ flex: 1 }}>{line || ' '}</span>
+        </div>
       ))}
-    </View>
+    </div>
   );
 }
 
@@ -143,44 +56,131 @@ function QuestionSideBySide({
   settings: PDFLayoutSettings;
   assignmentType?: AssignmentType;
 }) {
-  const styles = getStyles(settings);
+  const marginBottom = settings.spacingStyle === 'compact' ? '10px' : settings.spacingStyle === 'spacious' ? '30px' : '20px';
+  const dividerMargin = settings.spacingStyle === 'compact' ? '10px' : '20px';
 
   return (
-    <View style={styles.questionContainer} wrap={true}>
-      <Text style={styles.problemStatement}>{question.problemStatement}</Text>
+    <div
+      style={{
+        marginBottom,
+        clear: 'both',
+        pageBreakInside: 'auto',
+      }}
+    >
+      <div
+        style={{
+          fontSize: `${settings.fontSize - 1}px`,
+          color: '#333',
+          marginBottom: `${settings.paragraphSpacing ?? 10}px`,
+          lineHeight: settings.lineHeight ?? 1.4,
+          whiteSpace: 'pre-wrap',
+        }}
+      >
+        {question.problemStatement}
+      </div>
 
-      <View style={styles.sideBySideContainer}>
+      <div>
+        {/* Floating Output Column */}
+        {question.output && (
+          <div
+            style={{
+              backgroundColor: '#ffffff',
+              padding: settings.spacingStyle === 'compact' ? '6px' : '10px',
+              borderRadius: '4px',
+              fontFamily: 'Courier, monospace',
+              fontSize: `${settings.fontSize - 2}px`,
+              color: '#1a1a1a',
+              border: '1px dashed #d1d5db',
+              lineHeight: settings.lineHeight ?? 1.4,
+              float: 'right',
+              width: '40%',
+              marginLeft: '15px',
+              marginBottom: '10px',
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-all',
+            }}
+          >
+            <div
+              style={{
+                fontSize: `${settings.fontSize - 1}px`,
+                fontWeight: 'bold',
+                color: settings.headingColor || '#c75000',
+                marginBottom: '6px',
+              }}
+            >
+              Output
+            </div>
+            <div>{question.output}</div>
+            {settings.showExplanation && question.explanation && (
+              <>
+                <div
+                  style={{
+                    fontSize: `${settings.fontSize - 1}px`,
+                    fontWeight: 'bold',
+                    color: settings.headingColor || '#c75000',
+                    marginBottom: '6px',
+                    marginTop: '12px',
+                  }}
+                >
+                  Explanation
+                </div>
+                <div
+                  style={{
+                    fontSize: `${settings.fontSize - 1}px`,
+                    color: '#444',
+                    lineHeight: settings.lineHeight ?? 1.4,
+                    whiteSpace: 'pre-wrap',
+                  }}
+                >
+                  {question.explanation}
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
         {/* Code Column */}
-        <View style={styles.sideBySideColumn}>
-          <Text style={styles.sectionLabel}>{assignmentType === 'Code' ? 'Code' : 'Answer'}</Text>
-          <View style={styles.codeBlock}>
+        <div>
+          <div
+            style={{
+              fontSize: `${settings.fontSize - 1}px`,
+              fontWeight: 'bold',
+              color: settings.headingColor || '#c75000',
+              marginBottom: '6px',
+              marginTop: '10px',
+            }}
+          >
+            {assignmentType === 'Code' ? 'Code' : 'Answer'}
+          </div>
+          <div
+            style={{
+              padding: settings.spacingStyle === 'compact' ? '2px' : '4px',
+              fontFamily: 'Courier, monospace',
+              fontSize: `${settings.fontSize - 2}px`,
+              color: '#1a1a1a',
+              lineHeight: settings.lineHeight ?? 1.4,
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-all',
+            }}
+          >
             <CodeWithLineNumbers
               code={question.code}
               showLineNumbers={settings.showLineNumbers}
               fontSize={settings.fontSize}
             />
-          </View>
-        </View>
+          </div>
+        </div>
+      </div>
 
-        {/* Output Column */}
-        {question.output && (
-          <View style={styles.sideBySideColumn}>
-            <Text style={styles.sectionLabel}>Output</Text>
-            <View style={styles.outputBlock}>
-              <Text>{question.output}</Text>
-            </View>
-            {settings.showExplanation && question.explanation && (
-              <>
-                <Text style={[styles.sectionLabel, { marginTop: 12 }]}>Explanation</Text>
-                <Text style={styles.explanation}>{question.explanation}</Text>
-              </>
-            )}
-          </View>
-        )}
-      </View>
-
-      <View style={styles.divider} />
-    </View>
+      <div
+        style={{
+          borderBottom: '1px solid #eee',
+          marginTop: dividerMargin,
+          marginBottom: dividerMargin,
+          clear: 'both',
+        }}
+      />
+    </div>
   );
 }
 
@@ -193,73 +193,255 @@ function QuestionStacked({
   settings: PDFLayoutSettings;
   assignmentType?: AssignmentType;
 }) {
-  const styles = getStyles(settings);
+  const marginBottom = settings.spacingStyle === 'compact' ? '10px' : settings.spacingStyle === 'spacious' ? '30px' : '20px';
+  const dividerMargin = settings.spacingStyle === 'compact' ? '10px' : '20px';
 
   return (
-    <View style={styles.questionContainer} wrap={true}>
-      <Text style={styles.problemStatement}>{question.problemStatement}</Text>
+    <div
+      style={{
+        marginBottom,
+        clear: 'both',
+        pageBreakInside: 'auto',
+      }}
+    >
+      <div
+        style={{
+          fontSize: `${settings.fontSize - 1}px`,
+          color: '#333',
+          marginBottom: `${settings.paragraphSpacing ?? 10}px`,
+          lineHeight: settings.lineHeight ?? 1.4,
+          whiteSpace: 'pre-wrap',
+        }}
+      >
+        {question.problemStatement}
+      </div>
 
-      <Text style={styles.sectionLabel}>{assignmentType === 'Code' ? 'Code' : 'Answer'}</Text>
-      <View style={styles.codeBlock}>
+      <div
+        style={{
+          fontSize: `${settings.fontSize - 1}px`,
+          fontWeight: 'bold',
+          color: settings.headingColor || '#c75000',
+          marginBottom: '6px',
+          marginTop: '10px',
+        }}
+      >
+        {assignmentType === 'Code' ? 'Code' : 'Answer'}
+      </div>
+      <div
+        style={{
+          padding: settings.spacingStyle === 'compact' ? '2px' : '4px',
+          fontFamily: 'Courier, monospace',
+          fontSize: `${settings.fontSize - 2}px`,
+          color: '#1a1a1a',
+          lineHeight: settings.lineHeight ?? 1.4,
+          whiteSpace: 'pre-wrap',
+          wordBreak: 'break-all',
+        }}
+      >
         <CodeWithLineNumbers
           code={question.code}
           showLineNumbers={settings.showLineNumbers}
           fontSize={settings.fontSize}
         />
-      </View>
+      </div>
 
       {question.output && (
         <>
-          <Text style={styles.sectionLabel}>Output</Text>
-          <View style={styles.outputBlock}>
-            <Text>{question.output}</Text>
-          </View>
+          <div
+            style={{
+              fontSize: `${settings.fontSize - 1}px`,
+              fontWeight: 'bold',
+              color: settings.headingColor || '#c75000',
+              marginBottom: '6px',
+              marginTop: '10px',
+            }}
+          >
+            Output
+          </div>
+          <div
+            style={{
+              backgroundColor: '#ffffff',
+              padding: settings.spacingStyle === 'compact' ? '6px' : '10px',
+              borderRadius: '4px',
+              fontFamily: 'Courier, monospace',
+              fontSize: `${settings.fontSize - 2}px`,
+              color: '#1a1a1a',
+              border: '1px dashed #d1d5db',
+              lineHeight: settings.lineHeight ?? 1.4,
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-all',
+            }}
+          >
+            {question.output}
+          </div>
         </>
       )}
 
       {settings.showExplanation && question.explanation && (
         <>
-          <Text style={styles.sectionLabel}>Explanation</Text>
-          <Text style={styles.explanation}>{question.explanation}</Text>
+          <div
+            style={{
+              fontSize: `${settings.fontSize - 1}px`,
+              fontWeight: 'bold',
+              color: settings.headingColor || '#c75000',
+              marginBottom: '6px',
+              marginTop: '10px',
+            }}
+          >
+            Explanation
+          </div>
+          <div
+            style={{
+              fontSize: `${settings.fontSize - 1}px`,
+              color: '#444',
+              lineHeight: settings.lineHeight ?? 1.4,
+              whiteSpace: 'pre-wrap',
+            }}
+          >
+            {question.explanation}
+          </div>
         </>
       )}
 
-      <View style={styles.divider} />
-    </View>
+      <div
+        style={{
+          borderBottom: '1px solid #eee',
+          marginTop: dividerMargin,
+          marginBottom: dividerMargin,
+          clear: 'both',
+        }}
+      />
+    </div>
   );
 }
 
-export function PDFDocument({ questions, settings, assignmentType = 'Code' }: PDFDocumentProps) {
-  const styles = getStyles(settings);
-  const QuestionComponent = settings.layoutStyle === 'side-by-side' ? QuestionSideBySide : QuestionStacked;
+export const PDFDocument = React.forwardRef<HTMLDivElement, PDFDocumentProps>(
+  ({ questions, settings, assignmentType = 'Code' }, ref) => {
+    const QuestionComponent = settings.layoutStyle === 'side-by-side' ? QuestionSideBySide : QuestionStacked;
 
-  return (
-    <Document>
-      <Page size="A4" style={styles.page}>
-        {/* Header */}
-        {settings.headerText && (
-          <View style={styles.header}>
-            <Text>{settings.headerText}</Text>
-          </View>
-        )}
+    // Convert px to mm for @page rule (only way to get margins on EVERY printed page)
+    const marginTopMm = Math.round((settings.pageMarginTop ?? 35) * 0.264583);
+    const marginBottomMm = Math.round((settings.pageMarginBottom ?? 35) * 0.264583);
+    const marginSideMm = Math.round((settings.pageMargin ?? 35) * 0.264583);
 
-        {/* Questions */}
-        {questions.map((q) => (
-          <QuestionComponent key={q.questionNumber} question={q} settings={settings} assignmentType={assignmentType} />
-        ))}
+    return (
+        <div ref={ref} className="pdf-document-root">
+          {/*
+            CRITICAL: Style tag MUST be inside the ref div so react-to-print
+            includes it in the print iframe. @page margins are the ONLY way
+            to get margins on every printed page (padding only affects first/last).
+          */}
+          <style
+            dangerouslySetInnerHTML={{
+              __html: `
+                @page {
+                  size: A4 portrait;
+                  margin: ${marginTopMm}mm ${marginSideMm}mm ${marginBottomMm}mm ${marginSideMm}mm;
+                }
 
-        {/* Footer with page numbers */}
-        {(settings.footerText || settings.showPageNumbers) && (
-          <View style={styles.footer} fixed>
-            <Text>
-              {settings.footerText}
-              {settings.showPageNumbers && (
-                <Text render={({ pageNumber, totalPages }) => ` | Page ${pageNumber} of ${totalPages}`} />
-              )}
-            </Text>
-          </View>
-        )}
-      </Page>
-    </Document>
-  );
-}
+                @media print {
+                  *, *::before, *::after {
+                    box-sizing: border-box;
+                  }
+
+                  html, body {
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    width: 100% !important;
+                    height: auto !important;
+                  }
+
+                  * {
+                    -webkit-print-color-adjust: exact !important;
+                    print-color-adjust: exact !important;
+                    color-adjust: exact !important;
+                  }
+
+                  .pdf-document-root {
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    width: 100% !important;
+                    max-width: none !important;
+                  }
+
+                  /* No padding in print — @page margins handle all page margins */
+                  .pdf-content-wrapper {
+                    padding: 0 !important;
+                    margin: 0 !important;
+                  }
+                }
+
+                @media screen {
+                  .pdf-document-root {
+                    width: 100%;
+                    max-width: 210mm;
+                    margin: 0 auto;
+                    background-color: white;
+                  }
+
+                  .pdf-content-wrapper {
+                    padding-top: ${settings.pageMarginTop ?? 35}px;
+                    padding-bottom: ${settings.pageMarginBottom ?? 35}px;
+                    padding-left: ${settings.pageMargin ?? 35}px;
+                    padding-right: ${settings.pageMargin ?? 35}px;
+                  }
+                }
+              `,
+            }}
+          />
+
+          <div
+            className="pdf-content-wrapper"
+            style={{
+              fontFamily: 'Helvetica, Arial, sans-serif',
+              fontSize: `${settings.fontSize}px`,
+              backgroundColor: 'white',
+            }}
+          >
+            {/* Header */}
+            {settings.headerText && (
+              <div
+                style={{
+                  fontSize: '10px',
+                  color: '#666',
+                  marginBottom: '15px',
+                  paddingBottom: '8px',
+                  borderBottom: '1px solid #ddd',
+                }}
+              >
+                {settings.headerText}
+              </div>
+            )}
+
+            {/* Questions List */}
+            {questions.map((q) => (
+              <QuestionComponent
+                key={q.questionNumber}
+                question={q}
+                settings={settings}
+                assignmentType={assignmentType}
+              />
+            ))}
+
+            {/* Footer */}
+            {settings.footerText && (
+              <div
+                style={{
+                  paddingTop: '10px',
+                  marginTop: '20px',
+                  borderTop: '1px solid #ddd',
+                  fontSize: '9px',
+                  color: '#888',
+                  textAlign: 'center',
+                }}
+              >
+                {settings.footerText}
+              </div>
+            )}
+          </div>
+        </div>
+    );
+  }
+);
+
+PDFDocument.displayName = 'PDFDocument';

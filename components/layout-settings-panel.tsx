@@ -24,6 +24,8 @@ export function LayoutSettingsPanel({ settings, onChange }: LayoutSettingsPanelP
       fontSize: 8,
       lineHeight: 1.1,
       pageMargin: 15,
+      pageMarginTop: 15,
+      pageMarginBottom: 15,
     });
   };
 
@@ -127,7 +129,7 @@ export function LayoutSettingsPanel({ settings, onChange }: LayoutSettingsPanelP
             {/* Page Margin Slider */}
             <div className="space-y-1.5">
               <div className="flex justify-between items-center">
-                <label className="text-xs font-medium text-slate-700" title="Adjust the white space around the edges of the absolute page boundary">Page Margin</label>
+                <label className="text-xs font-medium text-slate-700" title="Adjust the white space on the left and right edges">Side Margins</label>
                 <span className="text-[10px] font-mono bg-slate-100 px-1.5 py-0.5 rounded text-slate-600">{settings.pageMargin}pt</span>
               </div>
               <input
@@ -137,6 +139,40 @@ export function LayoutSettingsPanel({ settings, onChange }: LayoutSettingsPanelP
                 step={5}
                 value={settings.pageMargin}
                 onChange={(e) => updateSetting('pageMargin', parseInt(e.target.value))}
+                className="w-full accent-slate-800 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer"
+              />
+            </div>
+
+            {/* Top Margin Slider */}
+            <div className="space-y-1.5">
+              <div className="flex justify-between items-center">
+                <label className="text-xs font-medium text-slate-700" title="Adjust the white space at the top of every page">Top Margin</label>
+                <span className="text-[10px] font-mono bg-slate-100 px-1.5 py-0.5 rounded text-slate-600">{settings.pageMarginTop}pt</span>
+              </div>
+              <input
+                type="range"
+                min={0}
+                max={100}
+                step={5}
+                value={settings.pageMarginTop}
+                onChange={(e) => updateSetting('pageMarginTop', parseInt(e.target.value))}
+                className="w-full accent-slate-800 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer"
+              />
+            </div>
+
+            {/* Bottom Margin Slider */}
+            <div className="space-y-1.5">
+              <div className="flex justify-between items-center">
+                <label className="text-xs font-medium text-slate-700" title="Adjust the white space at the bottom of every page">Bottom Margin</label>
+                <span className="text-[10px] font-mono bg-slate-100 px-1.5 py-0.5 rounded text-slate-600">{settings.pageMarginBottom}pt</span>
+              </div>
+              <input
+                type="range"
+                min={0}
+                max={100}
+                step={5}
+                value={settings.pageMarginBottom}
+                onChange={(e) => updateSetting('pageMarginBottom', parseInt(e.target.value))}
                 className="w-full accent-slate-800 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer"
               />
             </div>

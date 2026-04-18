@@ -45,6 +45,20 @@ ${settings.includeExplanation ? '- Provide any required explanations or addition
     basePrompt += `- Use the following variable names where applicable (or use them as inspiration for variable naming) so the code does not look AI generated: ${settings.baseVariableNames}\n\n`;
   }
 
+  if (settings.verticalCompactness) {
+    basePrompt += `\n## VERTICAL SPACE EFFICIENCY (SPACE SAVING MODE ACTIVE):
+- Your goal is to keep the output as short as possible vertically.
+- Use a compact, dense style for all structures.
+- AVOID double newlines between logic blocks; use single newlines or no newlines where clear.
+- FOR CODE (Java/C++/similar): Use K&R style (opening brackets on the same line). Merge extremely simple getter/setter or logic into one-liners.
+  EXAMPLE: 
+  if (x > 0) { return true; } 
+  else { return false; }
+- FOR STRUCTURED DATA (Financials/Balance Sheets/Lists): ALWAYS use Markdown Tables to organize data. Tables are required for balance sheets to minimize vertical crawl.
+- Keep explanations and reasoning dense and to the point.
+`;
+  }
+
   basePrompt += `Solve all questions/prompts requested by the user. If there is only one big prompt, treat it as question 1. ALWAYS respond with valid JSON matching the schema.`;
 
   return basePrompt;
