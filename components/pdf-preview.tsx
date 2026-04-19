@@ -4,6 +4,7 @@ import { useState, useRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { PDFDocument } from './pdf-document';
 import { SolvedQuestion, PDFLayoutSettings, AssignmentType } from '@/types';
+import { Button } from './ui/button';
 
 interface PDFPreviewProps {
   questions: SolvedQuestion[];
@@ -71,25 +72,33 @@ export function PDFPreview({ questions, settings, assignmentType = 'Code' }: PDF
   });
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 ">
       {/* Action Buttons */}
-      <div className="flex gap-3 items-center">
-        <button
+      <div className="flex flex-col items-center">
+        <Button
           onClick={() => handlePrint()}
           disabled={isPrinting}
-          className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium disabled:opacity-50"
+          variant="default"
+          className="px-4 py-4 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium disabled:opacity-50"
         >
           {isPrinting ? 'Preparing...' : '⬇️ Export to PDF / Print'}
-        </button>
-        <span className="text-sm text-gray-500">
-          Margins: Top {marginTopMm}mm, Bottom {marginBottomMm}mm, Sides {marginSideMm}mm
-        </span>
+        </Button>
+       <div className="flex items-start gap-2 bg-amber-50 border border-amber-300 text-amber-800 text-sm rounded-lg px-4 py-2.5">
+          <span className="text-base mt-0.5">⚠️</span>
+          <span>
+            <strong>Important:</strong> In the print dialog that opens, set{' '}
+            <strong>Margins → Default</strong>. This ensures your custom margins
+            ({marginSideMm}mm sides, {marginTopMm}mm top, {marginBottomMm}mm bottom)
+            are applied correctly on every page. If left on "None", the
+            browser does not add any margins.
+          </span>
+        </div>
       </div>
 
       {/* Visual A4 Page Container */}
-      <div className="flex justify-center bg-gray-200 p-8 rounded-lg overflow-y-auto max-h-[800px]">
+      <div className="flex justify-center  p-2 rounded-lg overflow-y-auto max-h-[800px]">
         {/* Aspect Ratio A4 (210x297mm) approximate visual scale */}
-        <div className="bg-white shadow-2xl rounded-sm w-full max-w-[210mm] min-h-[297mm]">
+        <div className=" shadow-2xl rounded-sm w-full max-w-[210mm] min-h-[297mm]">
           <PDFDocument
             ref={componentRef}
             questions={questions}

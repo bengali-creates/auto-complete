@@ -16,22 +16,17 @@ import {
 } from '@/types';
 import { useAppStore } from '@/lib/store';
 
-// shadcn/ui components
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Separator } from '@/components/ui/separator';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-
-// Icons (using lucide-react which comes with shadcn)
 import {
   Upload,
   FileText,
@@ -45,28 +40,41 @@ import {
   ExternalLink,
   X,
   AlertCircle,
-  Coffee,
   Sparkles,
   Code2,
   FileEdit,
   HelpCircle,
   Zap,
+  Terminal,
 } from 'lucide-react';
+import { GridScan } from '@/components/ui/gridScan';
+import { PillNav, PillNavItem } from '@/components/ui/pillNav';
 
-// Dynamic import for PDF (needs client-only)
 const PDFPreview = dynamic(
   () => import('@/components/pdf-preview').then((mod) => mod.PDFPreview),
   {
     ssr: false,
     loading: () => (
-      <div className="h-96 bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl animate-pulse flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-orange-400" />
+      <div className="h-96 rounded-2xl animate-pulse flex items-center justify-center bg-[#0f0f0f] border border-white/5">
+        <Loader2 className="w-8 h-8 animate-spin text-violet-400" />
       </div>
     ),
   }
 );
 
 type Tab = 'input' | 'editor' | 'preview';
+
+/** Bento card wrapper */
+function BentoCard({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+  return (
+    <div
+      className={`relative bg-white/[0.03] border border-white/[0.07] rounded-2xl backdrop-blur-sm overflow-hidden ${className}`}
+    >
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+      {children}
+    </div>
+  );
+}
 
 export default function HomePage() {
   const {
@@ -94,58 +102,37 @@ export default function HomePage() {
   const [mounted, setMounted] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  useEffect(() => { setMounted(true); }, []);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Handle file upload
   const handleFileDrop = (e: React.DragEvent | React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     setIsDragging(false);
     const file = 'dataTransfer' in e ? e.dataTransfer?.files[0] : e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (event) => setAssignment(event.target?.result as string);
+      reader.onload = (ev) => setAssignment(ev.target?.result as string);
       reader.readAsText(file);
     }
   };
 
-  // Solve assignment
   const handleSolve = async () => {
-    if (!apiKey.trim()) {
-      setError('Please enter your API key');
-      return;
-    }
-    if (!assignment.trim()) {
-      setError('Please enter or upload an assignment');
-      return;
-    }
+    if (!apiKey.trim()) return setError('Please enter your API key');
+    if (!assignment.trim()) return setError('Please enter or upload an assignment');
 
     setIsLoading(true);
     setError('');
 
     try {
-      const request: SolveRequest = {
-        assignment,
-        provider,
-        apiKey,
-        settings: solverSettings,
-      };
-
+      const request: SolveRequest = { assignment, provider, apiKey, settings: solverSettings };
       const res = await fetch('/api/solve', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(request),
       });
-
       const data: SolveResponse = await res.json();
-
-      if (!data.success) {
-        throw new Error(data.error || 'Failed to solve assignment');
-      }
-
+      if (!data.success) throw new Error(data.error || 'Failed to solve assignment');
       setQuestions(data.questions);
       setRawMarkdown(data.rawMarkdown);
       setActiveTab('editor');
@@ -158,15 +145,20 @@ export default function HomePage() {
 
   const hasResults = questions.length > 0;
 
+  const navItems: PillNavItem[] = [
+    { id: 'input', label: 'Assignment', icon: <FileText className="w-3.5 h-3.5" /> },
+    { id: 'editor', label: 'Editor', icon: <Pencil className="w-3.5 h-3.5" />, disabled: !hasResults },
+    { id: 'preview', label: 'Preview & Print', icon: <Eye className="w-3.5 h-3.5" />, disabled: !hasResults },
+  ];
+
   if (!mounted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[#080808] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="relative">
-            <Coffee className="w-12 h-12 text-orange-500 animate-bounce" />
-            <Sparkles className="w-5 h-5 text-amber-400 absolute -top-1 -right-1 animate-pulse" />
+          <div className="w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
+            <Terminal className="w-6 h-6 text-violet-400 animate-pulse" />
           </div>
-          <p className="text-orange-700 font-medium animate-pulse">Loading workspace...</p>
+          <p className="text-white/40 text-sm font-mono tracking-wider animate-pulse">initializing workspace...</p>
         </div>
       </div>
     );
@@ -174,47 +166,68 @@ export default function HomePage() {
 
   return (
     <TooltipProvider>
-      <div className="min-h-screen bg-gradient-to-br from-amber-50/80 via-orange-50/50 to-rose-50/80">
-        {/* Decorative background elements */}
-        <div className="fixed inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-orange-200/30 rounded-full blur-3xl" />
-          <div className="absolute top-1/2 -left-40 w-96 h-96 bg-amber-200/20 rounded-full blur-3xl" />
-          <div className="absolute -bottom-40 right-1/3 w-72 h-72 bg-rose-200/25 rounded-full blur-3xl" />
+      <div className="min-h-screen text-white relative">
+
+        {/* ─── BACKGROUND — z-0, pointer-events-none so it never blocks clicks ─── */}
+        <div
+          className="fixed inset-0 pointer-events-none"
+          style={{ zIndex: 0 }}
+          aria-hidden="true"
+        >
+          <GridScan
+            sensitivity={0.55}
+            lineThickness={1}
+            linesColor="#2F293A"
+            gridScale={0.1}
+            scanColor="#FF9FFC"
+            scanOpacity={0.4}
+            enablePost
+            bloomIntensity={0.6}
+            chromaticAberration={0.002}
+            noiseIntensity={0.01}
+          />
         </div>
 
-        {/* Header */}
-        <header className="relative bg-white/70 backdrop-blur-xl border-b border-orange-100/50 sticky top-0 z-50">
-          <div className="max-w-6xl mx-auto px-6 py-4">
-            <div className="flex items-center justify-between">
-              {/* Logo */}
-              <div className="flex items-center gap-3 group cursor-default">
-                <div className="relative">
-                  <div className="w-11 h-11 bg-gradient-to-br from-orange-400 to-amber-500 rounded-xl flex items-center justify-center shadow-lg shadow-orange-200/50 group-hover:shadow-orange-300/60 transition-shadow">
-                    <Coffee className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-gradient-to-br from-rose-400 to-pink-500 rounded-full flex items-center justify-center">
-                    <Zap className="w-2.5 h-2.5 text-white" />
-                  </div>
-                </div>
-                <div>
-                  <h1 className="text-xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
-                    AnySolver
-                  </h1>
-                  <p className="text-[11px] text-orange-500/70 font-medium tracking-wide">
-                    Paste • Solve • Print
-                  </p>
-                </div>
-              </div>
+        {/* All real content lives above z-0 */}
+        <div className="relative" style={{ zIndex: 1 }}>
 
-              {/* API Setup */}
+          {/* ─── HEADER ─── */}
+          <header className="sticky top-0 z-50 border-b border-white/[0.06] bg-[#080808]/80 backdrop-blur-xl">
+            <div className="w-full mx-auto px-6 h-16 flex items-center justify-between">
+              {/* Wordmark */}
+              <div className="w-full flex">
               <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-900/40">
+                  <Zap className="w-4 h-4 text-white" />
+                </div>
+                <span className="font-semibold text-white text-base tracking-tight">AnySolver</span>
+                <span className="hidden sm:block text-white/20 text-xs font-mono border border-white/10 rounded px-1.5 py-0.5">
+                  AI
+                </span>
+              </div>
+<div className="sticky top-16 z-40 border-b border-white/[0.04] bg-[#080808]/60 backdrop-blur-lg">
+            <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
+              <PillNav items={navItems} active={activeTab as Tab} onChange={(t) => setActiveTab(t as Tab)} />
+              {hasResults && (
+                <Badge
+                  variant="outline"
+                  className="border-emerald-500/30 text-emerald-400 bg-emerald-500/10 text-[10px] font-mono"
+                >
+                  {questions.length} question{questions.length !== 1 ? 's' : ''} solved
+                </Badge>
+              )}
+            </div>
+          </div>
+          </div>
+              {/* API controls */}
+              <div className="flex items-center gap-2">
                 <Select value={provider} onValueChange={(v) => setProvider(v as ApiProvider)}>
-                  <SelectTrigger className="w-[140px] bg-white/80 border-orange-200/50 focus:ring-orange-400/30">
+                  <SelectTrigger className="h-9 w-[140px] bg-white/5 border-white/10 text-white/80 text-xs focus:ring-violet-500/30 hover:bg-white/8 transition-colors">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-[#111] border-white/10 text-white z-[200]">
                     {Object.entries(API_CONFIGS).map(([key, config]) => (
-                      <SelectItem key={key} value={key}>
+                      <SelectItem key={key} value={key} className="text-white/80 focus:bg-white/10 focus:text-white">
                         {config.name}
                       </SelectItem>
                     ))}
@@ -227,470 +240,375 @@ export default function HomePage() {
                     placeholder={API_CONFIGS[provider].keyPlaceholder}
                     value={apiKey}
                     onChange={(e) => setApiKey(e.target.value)}
-                    className="w-52 bg-white/80 border-orange-200/50 focus-visible:ring-orange-400/30 pr-8"
+                    className="h-9 w-48 bg-white/5 border-white/10 text-white placeholder:text-white/25 text-xs focus-visible:ring-violet-500/30 focus-visible:border-violet-500/40 pr-7"
                   />
                   {apiKey && (
-                    <div className="absolute right-2.5 top-1/2 -translate-y-1/2 w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
                   )}
                 </div>
 
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
-                      className="text-orange-600 hover:text-orange-700 hover:bg-orange-100/50"
+                      className="h-9 px-3 text-violet-400 hover:text-violet-300 hover:bg-violet-500/10 border-white/10 text-xs"
                       asChild
                     >
-                      <a
-                        href={API_CONFIGS[provider].helpUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <ExternalLink className="w-4 h-4 mr-1" />
+                      <a href={API_CONFIGS[provider].helpUrl} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="w-3.5 h-3.5 mr-1" />
                         Get key
                       </a>
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Get your API key from {API_CONFIGS[provider].name}</p>
+                  <TooltipContent className="bg-[#1a1a1a] border-white/10 text-white text-xs z-[300]">
+                    Get your API key from {API_CONFIGS[provider].name}
                   </TooltipContent>
                 </Tooltip>
               </div>
             </div>
-          </div>
-        </header>
+          </header>
 
-        {/* Tabs Navigation */}
-        <div className="relative bg-white/50 backdrop-blur-sm border-b border-orange-100/30">
-          <div className="max-w-6xl mx-auto px-6">
-            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as Tab)}>
-              <TabsList className="bg-transparent h-14 gap-1">
-                <TabsTrigger
-                  value="input"
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-amber-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-orange-200/50 rounded-xl px-5 py-2.5 transition-all"
-                >
-                  <FileText className="w-4 h-4 mr-2" />
-                  Assignment
-                </TabsTrigger>
-                <TabsTrigger
-                  value="editor"
-                  disabled={!hasResults}
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-amber-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-orange-200/50 rounded-xl px-5 py-2.5 transition-all disabled:opacity-40"
-                >
-                  <Pencil className="w-4 h-4 mr-2" />
-                  Editor
-                </TabsTrigger>
-                <TabsTrigger
-                  value="preview"
-                  disabled={!hasResults}
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-amber-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-orange-200/50 rounded-xl px-5 py-2.5 transition-all disabled:opacity-40"
-                >
-                  <Eye className="w-4 h-4 mr-2" />
-                  Preview & Print
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
-        </div>
+         
 
-        {/* Main Content */}
-        <main className="relative max-w-6xl mx-auto px-6 py-8">
-          {/* Error Alert */}
-          {error && (
-            <Alert variant="destructive" className="mb-6 border-red-200 bg-red-50/80 backdrop-blur">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription className="flex items-center justify-between flex-1">
-                <span>{error}</span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 w-6 p-0 hover:bg-red-100"
-                  onClick={() => setError('')}
-                >
+          {/* ─── MAIN ─── */}
+          <main className="max-w-6xl mx-auto px-6 py-8">
+            {/* Error */}
+            {error && (
+              <div className="mb-6 flex items-center gap-3 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-300 text-sm">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                <span className="flex-1">{error}</span>
+                <button onClick={() => setError('')} className="text-red-400 hover:text-red-200 transition-colors">
                   <X className="w-4 h-4" />
-                </Button>
-              </AlertDescription>
-            </Alert>
-          )}
+                </button>
+              </div>
+            )}
 
-          {/* Input Tab */}
-          {activeTab === 'input' && (
-            <div className="space-y-6">
-              {/* Settings Collapsible */}
-              <Collapsible open={showSettings} onOpenChange={setShowSettings}>
-                <CollapsibleTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="text-orange-600 hover:text-orange-700 hover:bg-orange-100/50 gap-2"
-                  >
-                    <Settings2 className="w-4 h-4" />
+            {/* ── INPUT TAB ── */}
+            {activeTab === 'input' && (
+              <div className="space-y-5">
+
+                {/* ── Settings collapsible ──
+                    FIX: Do NOT use asChild on CollapsibleTrigger with a <button>.
+                    CollapsibleTrigger already renders a button — just style it directly. */}
+                <Collapsible open={showSettings} onOpenChange={setShowSettings}>
+                  <CollapsibleTrigger className="flex items-center gap-2 text-sm text-white/40 hover:text-white/70 transition-colors group outline-none">
+                    <Settings2 className="w-4 h-4 group-hover:text-violet-400 transition-colors" />
                     {showSettings ? 'Hide Settings' : 'Customize Settings'}
                     <ChevronDown
-                      className={`w-4 h-4 transition-transform ${showSettings ? 'rotate-180' : ''}`}
+                      className={`w-3.5 h-3.5 transition-transform duration-200 ${showSettings ? 'rotate-180' : ''}`}
                     />
-                  </Button>
-                </CollapsibleTrigger>
+                  </CollapsibleTrigger>
 
-                <CollapsibleContent className="mt-4">
-                  <Card className="border-orange-200/50 bg-white/80 backdrop-blur shadow-xl shadow-orange-100/20">
-                    <CardHeader className="pb-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <CardTitle className="text-lg flex items-center gap-2">
-                            <Wand2 className="w-5 h-5 text-orange-500" />
-                            Solver Settings
-                          </CardTitle>
-                          <CardDescription>Customize how your assignment is solved</CardDescription>
-                        </div>
-                        <Select
-                          value={solverSettings.assignmentType}
-                          onValueChange={(v) =>
-                            setSolverSettings({ ...solverSettings, assignmentType: v as AssignmentType })
-                          }
-                        >
-                          <SelectTrigger className="w-[180px] bg-gradient-to-r from-orange-50 to-amber-50 border-orange-200 text-orange-700 font-medium">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Code">
-                              <span className="flex items-center gap-2">
-                                <Code2 className="w-4 h-4" />
-                                Code Assignment
-                              </span>
-                            </SelectItem>
-                            <SelectItem value="Essay">
-                              <span className="flex items-center gap-2">
-                                <FileEdit className="w-4 h-4" />
-                                Essay Writing
-                              </span>
-                            </SelectItem>
-                            <SelectItem value="General">
-                              <span className="flex items-center gap-2">
-                                <HelpCircle className="w-4 h-4" />
-                                General Questions
-                              </span>
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </CardHeader>
-
-                    <CardContent className="space-y-6">
-                      {solverSettings.assignmentType === 'Code' && (
-                        <>
-                          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            <div className="space-y-2">
-                              <Label className="text-xs text-muted-foreground uppercase tracking-wider">
-                                Author Name
-                              </Label>
-                              <Input
-                                value={solverSettings.authorName}
-                                onChange={(e) =>
-                                  setSolverSettings({ ...solverSettings, authorName: e.target.value })
-                                }
-                                placeholder="Your Name"
-                                className="bg-white/60"
-                              />
-                            </div>
-                            <div className="space-y-2">
-                              <Label className="text-xs text-muted-foreground uppercase tracking-wider">
-                                Experience Level
-                              </Label>
-                              <Select
-                                value={solverSettings.experienceLevel}
-                                onValueChange={(v) =>
-                                  setSolverSettings({ ...solverSettings, experienceLevel: v })
-                                }
-                              >
-                                <SelectTrigger className="bg-white/60">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="Beginner / Student">Beginner / Student</SelectItem>
-                                  <SelectItem value="Intermediate">Intermediate</SelectItem>
-                                  <SelectItem value="Professional Developer">
-                                    Professional Developer
-                                  </SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <div className="space-y-2">
-                              <Label className="text-xs text-muted-foreground uppercase tracking-wider">
-                                Variable Naming
-                              </Label>
-                              <Select
-                                value={solverSettings.namingConvention}
-                                onValueChange={(v) =>
-                                  setSolverSettings({
-                                    ...solverSettings,
-                                    namingConvention: v as SolverSettings['namingConvention'],
-                                  })
-                                }
-                              >
-                                <SelectTrigger className="bg-white/60">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="camelCase">camelCase</SelectItem>
-                                  <SelectItem value="snake_case">snake_case</SelectItem>
-                                  <SelectItem value="PascalCase">PascalCase</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <div className="space-y-2">
-                              <Label className="text-xs text-muted-foreground uppercase tracking-wider">
-                                Indentation
-                              </Label>
-                              <Select
-                                value={String(solverSettings.indentSpaces)}
-                                onValueChange={(v) =>
-                                  setSolverSettings({ ...solverSettings, indentSpaces: +v })
-                                }
-                              >
-                                <SelectTrigger className="bg-white/60">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="2">2 spaces</SelectItem>
-                                  <SelectItem value="4">4 spaces</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <div className="space-y-2">
-                              <Label className="text-xs text-muted-foreground uppercase tracking-wider">
-                                Package Name
-                              </Label>
-                              <Input
-                                value={solverSettings.packageName}
-                                onChange={(e) =>
-                                  setSolverSettings({ ...solverSettings, packageName: e.target.value })
-                                }
-                                placeholder="com.example"
-                                className="bg-white/60"
-                              />
-                            </div>
+                  <CollapsibleContent className="mt-4">
+                    <BentoCard>
+                      <div className="p-5">
+                        {/* Settings header */}
+                        <div className="flex items-center justify-between mb-5">
+                          <div className="flex items-center gap-2">
+                            <Wand2 className="w-4 h-4 text-violet-400" />
+                            <span className="text-sm font-semibold text-white">Solver Settings</span>
+                            <span className="text-xs text-white/30">Customize how your assignment is solved</span>
                           </div>
-                          <Separator className="bg-orange-100" />
-                        </>
-                      )}
+                          <Select
+                            value={solverSettings.assignmentType}
+                            onValueChange={(v) => setSolverSettings({ ...solverSettings, assignmentType: v as AssignmentType })}
+                          >
+                            <SelectTrigger className="w-[170px] h-8 bg-violet-500/10 border-violet-500/20 text-violet-300 text-xs">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="bg-[#111] border-white/10 text-white z-[200]">
+                              <SelectItem value="Code" className="text-white/80 focus:bg-white/10 focus:text-white">
+                                <span className="flex items-center gap-2"><Code2 className="w-3.5 h-3.5" /> Code Assignment</span>
+                              </SelectItem>
+                              <SelectItem value="Essay" className="text-white/80 focus:bg-white/10 focus:text-white">
+                                <span className="flex items-center gap-2"><FileEdit className="w-3.5 h-3.5" /> Essay Writing</span>
+                              </SelectItem>
+                              <SelectItem value="General" className="text-white/80 focus:bg-white/10 focus:text-white">
+                                <span className="flex items-center gap-2"><HelpCircle className="w-3.5 h-3.5" /> General Questions</span>
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
 
-                      {/* Variable Names Input */}
-                      <div className="space-y-3">
-                        <Label className="text-xs text-muted-foreground uppercase tracking-wider">
-                          Base Variable Names
-                        </Label>
-                        <Input
-                          placeholder="e.g. idx, temp_val, userNode... (comma separated)"
-                          value={solverSettings.baseVariableNames}
-                          onChange={(e) =>
-                            setSolverSettings({
-                              ...solverSettings,
-                              baseVariableNames: e.target.value,
-                            })
-                          }
-                          className="bg-white/60"
-                        />
-                        <p className="text-xs text-muted-foreground italic">
-                          List preferred variable names so the output doesn't look AI-generated.
-                        </p>
-                      </div>
-
-                      <Separator className="bg-orange-100" />
-
-                      {/* Toggles */}
-                      <div className="flex flex-wrap gap-6">
                         {solverSettings.assignmentType === 'Code' && (
                           <>
-                            <div className="flex items-center gap-3">
-                              <Switch
-                                id="includeOutput"
-                                checked={solverSettings.includeOutput}
-                                onCheckedChange={(checked) =>
-                                  setSolverSettings({ ...solverSettings, includeOutput: checked })
-                                }
-                              />
-                              <Label htmlFor="includeOutput" className="font-medium cursor-pointer">
-                                Include Output
-                              </Label>
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-5">
+                              {[
+                                {
+                                  label: 'Author Name',
+                                  content: (
+                                    <Input
+                                      value={solverSettings.authorName}
+                                      onChange={(e) => setSolverSettings({ ...solverSettings, authorName: e.target.value })}
+                                      placeholder="Your Name"
+                                      className="h-8 bg-white/5 border-white/10 text-white placeholder:text-white/20 text-xs focus-visible:ring-violet-500/30"
+                                    />
+                                  ),
+                                },
+                                {
+                                  label: 'Experience Level',
+                                  content: (
+                                    <Select
+                                      value={solverSettings.experienceLevel}
+                                      onValueChange={(v) => setSolverSettings({ ...solverSettings, experienceLevel: v })}
+                                    >
+                                      <SelectTrigger className="h-8 bg-white/5 border-white/10 text-white/70 text-xs">
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent className="bg-[#111] border-white/10 text-white z-[200]">
+                                        <SelectItem value="Beginner / Student" className="text-white/80 focus:bg-white/10 focus:text-white text-xs">Beginner / Student</SelectItem>
+                                        <SelectItem value="Intermediate" className="text-white/80 focus:bg-white/10 focus:text-white text-xs">Intermediate</SelectItem>
+                                        <SelectItem value="Professional Developer" className="text-white/80 focus:bg-white/10 focus:text-white text-xs">Professional</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  ),
+                                },
+                                {
+                                  label: 'Variable Naming',
+                                  content: (
+                                    <Select
+                                      value={solverSettings.namingConvention}
+                                      onValueChange={(v) => setSolverSettings({ ...solverSettings, namingConvention: v as SolverSettings['namingConvention'] })}
+                                    >
+                                      <SelectTrigger className="h-8 bg-white/5 border-white/10 text-white/70 text-xs">
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent className="bg-[#111] border-white/10 text-white z-[200]">
+                                        <SelectItem value="camelCase" className="text-white/80 focus:bg-white/10 focus:text-white text-xs">camelCase</SelectItem>
+                                        <SelectItem value="snake_case" className="text-white/80 focus:bg-white/10 focus:text-white text-xs">snake_case</SelectItem>
+                                        <SelectItem value="PascalCase" className="text-white/80 focus:bg-white/10 focus:text-white text-xs">PascalCase</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  ),
+                                },
+                                {
+                                  label: 'Indentation',
+                                  content: (
+                                    <Select
+                                      value={String(solverSettings.indentSpaces)}
+                                      onValueChange={(v) => setSolverSettings({ ...solverSettings, indentSpaces: +v })}
+                                    >
+                                      <SelectTrigger className="h-8 bg-white/5 border-white/10 text-white/70 text-xs">
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent className="bg-[#111] border-white/10 text-white z-[200]">
+                                        <SelectItem value="2" className="text-white/80 focus:bg-white/10 focus:text-white text-xs">2 spaces</SelectItem>
+                                        <SelectItem value="4" className="text-white/80 focus:bg-white/10 focus:text-white text-xs">4 spaces</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  ),
+                                },
+                                {
+                                  label: 'Package Name',
+                                  content: (
+                                    <Input
+                                      value={solverSettings.packageName}
+                                      onChange={(e) => setSolverSettings({ ...solverSettings, packageName: e.target.value })}
+                                      placeholder="com.example"
+                                      className="h-8 bg-white/5 border-white/10 text-white placeholder:text-white/20 text-xs focus-visible:ring-violet-500/30"
+                                    />
+                                  ),
+                                },
+                              ].map((field) => (
+                                <div key={field.label} className="space-y-1.5">
+                                  <Label className="text-[10px] font-medium text-white/30 uppercase tracking-wider">
+                                    {field.label}
+                                  </Label>
+                                  {field.content}
+                                </div>
+                              ))}
                             </div>
-                            <div className="flex items-center gap-3">
-                              <Switch
-                                id="includeExplanation"
-                                checked={solverSettings.includeExplanation}
-                                onCheckedChange={(checked) =>
-                                  setSolverSettings({ ...solverSettings, includeExplanation: checked })
-                                }
-                              />
-                              <Label htmlFor="includeExplanation" className="font-medium cursor-pointer">
-                                Include Explanation
-                              </Label>
-                            </div>
+                            <Separator className="bg-white/5 mb-5" />
                           </>
                         )}
-                        <div className="flex items-center gap-3">
-                          <Switch
-                            id="verticalCompactness"
-                            checked={solverSettings.verticalCompactness}
-                            onCheckedChange={(checked) =>
-                              setSolverSettings({ ...solverSettings, verticalCompactness: checked })
-                            }
-                          />
-                          <Label htmlFor="verticalCompactness" className="font-medium cursor-pointer">
-                            Space Saving Mode
+
+                        {/* Variable names */}
+                        <div className="space-y-2 mb-5">
+                          <Label className="text-[10px] font-medium text-white/30 uppercase tracking-wider">
+                            Base Variable Names
                           </Label>
+                          <Input
+                            placeholder="e.g. idx, temp_val, userNode... (comma separated)"
+                            value={solverSettings.baseVariableNames}
+                            onChange={(e) => setSolverSettings({ ...solverSettings, baseVariableNames: e.target.value })}
+                            className="h-8 bg-white/5 border-white/10 text-white placeholder:text-white/20 text-xs focus-visible:ring-violet-500/30"
+                          />
+                          <p className="text-[10px] text-white/20 italic">
+                            List preferred variable names so the output doesn't look AI-generated.
+                          </p>
+                        </div>
+
+                        <Separator className="bg-white/5 mb-5" />
+
+                        {/* Toggles */}
+                        <div className="flex flex-wrap gap-5">
+                          {solverSettings.assignmentType === 'Code' && (
+                            <>
+                              {[
+                                { id: 'includeOutput', label: 'Include Output', checked: solverSettings.includeOutput, key: 'includeOutput' },
+                                { id: 'includeExplanation', label: 'Include Explanation', checked: solverSettings.includeExplanation, key: 'includeExplanation' },
+                              ].map((toggle) => (
+                                <div key={toggle.id} className="flex items-center gap-2.5">
+                                  <Switch
+                                    id={toggle.id}
+                                    checked={toggle.checked}
+                                    onCheckedChange={(checked) => setSolverSettings({ ...solverSettings, [toggle.key]: checked })}
+                                    className="data-[state=checked]:bg-violet-500"
+                                  />
+                                  <Label htmlFor={toggle.id} className="text-xs text-white/60 cursor-pointer">{toggle.label}</Label>
+                                </div>
+                              ))}
+                            </>
+                          )}
+                          <div className="flex items-center gap-2.5">
+                            <Switch
+                              id="verticalCompactness"
+                              checked={solverSettings.verticalCompactness}
+                              onCheckedChange={(checked) => setSolverSettings({ ...solverSettings, verticalCompactness: checked })}
+                              className="data-[state=checked]:bg-violet-500"
+                            />
+                            <Label htmlFor="verticalCompactness" className="text-xs text-white/60 cursor-pointer">Space Saving Mode</Label>
+                          </div>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                </CollapsibleContent>
-              </Collapsible>
+                    </BentoCard>
+                  </CollapsibleContent>
+                </Collapsible>
 
-              {/* Drop Zone */}
-              <Card
-                onDrop={handleFileDrop}
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  setIsDragging(true);
-                }}
-                onDragLeave={() => setIsDragging(false)}
-                onClick={() => fileInputRef.current?.click()}
-                className={`border-2 border-dashed cursor-pointer transition-all duration-300 ${
-                  isDragging
-                    ? 'border-orange-400 bg-orange-50/80 scale-[1.02]'
-                    : 'border-orange-200/60 bg-white/60 hover:border-orange-300 hover:bg-orange-50/50'
-                }`}
-              >
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".txt,.md"
-                  onChange={handleFileDrop}
-                  hidden
-                />
-                <CardContent className="py-12 flex flex-col items-center">
+                {/* Drop Zone */}
+                <BentoCard
+                  className={`cursor-pointer transition-all duration-300 ${
+                    isDragging
+                      ? 'border-violet-500/50 bg-violet-500/5 scale-[1.01]'
+                      : 'hover:border-white/15 hover:bg-white/[0.04]'
+                  }`}
+                >
                   <div
-                    className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 transition-all ${
-                      isDragging
-                        ? 'bg-gradient-to-br from-orange-400 to-amber-500 scale-110'
-                        : 'bg-gradient-to-br from-orange-100 to-amber-100'
-                    }`}
+                    onDrop={handleFileDrop}
+                    onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                    onDragLeave={() => setIsDragging(false)}
+                    onClick={() => fileInputRef.current?.click()}
+                    className="py-8 flex flex-col items-center"
                   >
-                    <Upload
-                      className={`w-8 h-8 transition-colors ${
-                        isDragging ? 'text-white' : 'text-orange-500'
+                    <input ref={fileInputRef} type="file" accept=".txt,.md" onChange={handleFileDrop} hidden />
+                    <div
+                      className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-3 transition-all ${
+                        isDragging
+                          ? 'bg-violet-500/20 border border-violet-500/30 scale-110'
+                          : 'bg-white/5 border border-white/8'
                       }`}
-                    />
+                    >
+                      <Upload className={`w-5 h-5 transition-colors ${isDragging ? 'text-violet-400' : 'text-white/30'}`} />
+                    </div>
+                    <p className="text-sm font-medium text-white/70 mb-1">Drop your assignment file here</p>
+                    <p className="text-xs text-white/30 flex items-center gap-1.5">
+                      or click to browse
+                      <Badge variant="outline" className="border-white/10 text-white/30 text-[10px] font-mono px-1.5 py-0">
+                        .txt
+                      </Badge>
+                      <Badge variant="outline" className="border-white/10 text-white/30 text-[10px] font-mono px-1.5 py-0">
+                        .md
+                      </Badge>
+                    </p>
                   </div>
-                  <p className="font-semibold text-gray-700 mb-1">
-                    Drop your assignment file here
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    or click to browse
-                    <Badge variant="secondary" className="ml-2 bg-orange-100 text-orange-600">
-                      .txt
-                    </Badge>
-                    <Badge variant="secondary" className="ml-1 bg-orange-100 text-orange-600">
-                      .md
-                    </Badge>
-                  </p>
-                </CardContent>
-              </Card>
+                </BentoCard>
 
-              {/* Divider */}
-              <div className="flex items-center gap-4 text-muted-foreground text-sm">
-                <Separator className="flex-1 bg-orange-200/50" />
-                <span className="text-orange-400 font-medium">OR</span>
-                <Separator className="flex-1 bg-orange-200/50" />
+                {/* OR divider */}
+                <div className="flex items-center gap-4 text-white/15 text-xs">
+                  <div className="flex-1 h-px bg-white/8" />
+                  <span className="font-mono text-white/25">OR</span>
+                  <div className="flex-1 h-px bg-white/8" />
+                </div>
+
+                {/* ── Scrollable Textarea ── */}
+                <BentoCard>
+                  {/* Fixed-height scroll area so the card never grows too tall */}
+                  <ScrollArea className="h-56 w-full rounded-2xl">
+                    <Textarea
+                      value={assignment}
+                      onChange={(e) => setAssignment(e.target.value)}
+                      placeholder={
+                        solverSettings.assignmentType === 'Code'
+                          ? `Paste your assignment questions here...\n\nExample:\n1. Write a program to find the factorial of a number.\n2. Write a program to check if a number is prime.\n3. Write a program to reverse a string.`
+                          : `Paste your assignment prompt here...`
+                      }
+                      className="min-h-56 border-0 rounded-none font-mono text-sm resize-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent text-white/80 placeholder:text-white/15 p-5"
+                    />
+                  </ScrollArea>
+                </BentoCard>
+
+                {/* Solve Button */}
+                <button
+                  onClick={handleSolve}
+                  disabled={isLoading || !assignment.trim()}
+                  className="group w-full py-3.5 relative overflow-hidden rounded-xl font-semibold text-sm transition-all duration-200
+                    bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500
+                    disabled:opacity-40 disabled:cursor-not-allowed
+                    shadow-xl shadow-violet-900/40 hover:shadow-violet-900/60
+                    active:scale-[0.99]"
+                >
+                  <span className="relative z-10 flex items-center justify-center gap-2">
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Solving your assignment...
+                      </>
+                    ) : (
+                      <>
+                        <Rocket className="w-4 h-4 group-hover:-translate-y-0.5 transition-transform" />
+                        Solve Assignment
+                        <Sparkles className="w-3.5 h-3.5 opacity-70" />
+                      </>
+                    )}
+                  </span>
+                  <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/5 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                </button>
               </div>
+            )}
 
-              {/* Text Input */}
-              <Card className="border-orange-200/50 bg-white/80 backdrop-blur overflow-hidden">
-                <CardContent className="p-0">
-                  <Textarea
-                    value={assignment}
-                    onChange={(e) => setAssignment(e.target.value)}
-                    placeholder={
-                      solverSettings.assignmentType === 'Code'
-                        ? `Paste your assignment questions here...
-
-Example:
-1. Write a program to find the factorial of a number.
-2. Write a program to check if a number is prime.
-3. Write a program to reverse a string.`
-                        : `Paste your assignment prompt here...`
-                    }
-                    rows={14}
-                    className="border-0 rounded-none font-mono text-sm resize-y focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent"
+            {/* ── EDITOR TAB ── */}
+            {activeTab === 'editor' && hasResults && (
+              <BentoCard>
+                <div className="p-6">
+                  <MarkdownEditor
+                    questions={questions}
+                    onChange={setQuestions}
+                    rawMarkdown={rawMarkdown}
+                    onRawChange={setRawMarkdown}
                   />
-                </CardContent>
-              </Card>
+                </div>
+              </BentoCard>
+            )}
 
-              {/* Solve Button */}
-              <Button
-                onClick={handleSolve}
-                disabled={isLoading || !assignment.trim()}
-                size="lg"
-                className="w-full h-14 text-lg font-bold bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:from-orange-600 hover:via-amber-600 hover:to-orange-600 shadow-xl shadow-orange-200/50 hover:shadow-orange-300/60 transition-all disabled:opacity-50 disabled:shadow-none"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    Solving your assignment...
-                  </>
-                ) : (
-                  <>
-                    <Rocket className="w-5 h-5 mr-2" />
-                    Solve Assignment
-                    <Sparkles className="w-4 h-4 ml-2" />
-                  </>
-                )}
-              </Button>
-            </div>
-          )}
-
-          {/* Editor Tab */}
-          {activeTab === 'editor' && hasResults && (
-            <Card className="border-orange-200/50 bg-white/80 backdrop-blur">
-              <CardContent className="p-6">
-                <MarkdownEditor
-                  questions={questions}
-                  onChange={setQuestions}
-                  rawMarkdown={rawMarkdown}
-                  onRawChange={setRawMarkdown}
-                />
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Preview Tab */}
-          {activeTab === 'preview' && hasResults && (
-            <div className="space-y-6">
-              <Card className="border-orange-200/50 bg-white/80 backdrop-blur">
-                <CardContent className="p-6">
-                  <LayoutSettingsPanel settings={pdfSettings} onChange={setPdfSettings} />
-                </CardContent>
-              </Card>
-              <Card className="border-orange-200/50 bg-white/80 backdrop-blur overflow-hidden">
-                <CardContent className="p-0">
+            {/* ── PREVIEW TAB ── */}
+            {activeTab === 'preview' && hasResults && (
+              <div className="space-y-5">
+                <BentoCard>
+                  <div className="p-5">
+                    <LayoutSettingsPanel settings={pdfSettings} onChange={setPdfSettings} />
+                  </div>
+                </BentoCard>
+                <BentoCard className="overflow-hidden">
                   <PDFPreview
                     questions={questions}
                     settings={pdfSettings}
                     assignmentType={solverSettings.assignmentType}
                   />
-                </CardContent>
-              </Card>
-            </div>
-          )}
-        </main>
+                </BentoCard>
+              </div>
+            )}
+          </main>
 
-        {/* Footer */}
-        <footer className="relative text-center py-8 text-sm text-orange-600/60">
-          <div className="flex items-center justify-center gap-2">
-            <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-            Your API key is stored locally and never sent to our servers.
-          </div>
-        </footer>
+          {/* ─── FOOTER ─── */}
+          <footer className="border-t border-white/[0.04] py-6 text-center">
+            <div className="flex items-center justify-center gap-2 text-xs text-white/20">
+              <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+              Your API key is stored locally and never sent to our servers.
+            </div>
+          </footer>
+
+        </div>{/* end z-1 wrapper */}
       </div>
     </TooltipProvider>
   );
