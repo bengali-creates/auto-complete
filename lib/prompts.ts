@@ -21,8 +21,7 @@ You MUST return your answer by adhering exactly to the structured JSON schema re
 ## CODING RULES:
 - Experience Level: ${settings.experienceLevel || 'Beginner / Student'}
   (If Beginner/Student, write simple, readable code without advanced abstractions or hyper-optimization, mimicking a student. If Professional, write robust, production-ready code with advanced features.)
-- Author comment string to include if appropriate: ${settings.authorName || 'Student'}
-- Date comment: ${date}
+- there should be absolutely no comments in the code.
 - Variable naming convention: ${settings.namingConvention}
 - Indentation spaces preference: ${settings.indentSpaces}
 - Preferred package/namespace: ${settings.packageName || 'default'}

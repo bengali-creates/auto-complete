@@ -80,7 +80,7 @@ function QuestionSideBySide({
       </div>
 
       <div>
-        {/* Floating Output Column */}
+        
         {question.output && (
           <div
             style={{
@@ -139,7 +139,7 @@ function QuestionSideBySide({
           </div>
         )}
 
-        {/* Code Column */}
+        
         <div>
           <div
             style={{
@@ -319,7 +319,7 @@ export const PDFDocument = React.forwardRef<HTMLDivElement, PDFDocumentProps>(
   ({ questions, settings, assignmentType = 'Code' }, ref) => {
     const QuestionComponent = settings.layoutStyle === 'side-by-side' ? QuestionSideBySide : QuestionStacked;
 
-    // Convert px to mm for @page rule (only way to get margins on EVERY printed page)
+    
     const marginTopMm = Math.round((settings.pageMarginTop ?? 35) * 0.264583);
     const marginBottomMm = Math.round((settings.pageMarginBottom ?? 35) * 0.264583);
     const marginSideMm = Math.round((settings.pageMargin ?? 35) * 0.264583);
@@ -364,7 +364,7 @@ export const PDFDocument = React.forwardRef<HTMLDivElement, PDFDocumentProps>(
                     max-width: none !important;
                   }
 
-                  /* No padding in print — @page margins handle all page margins */
+                  
                   .pdf-content-wrapper {
                     padding: 0 !important;
                     margin: 0 !important;
@@ -398,7 +398,7 @@ export const PDFDocument = React.forwardRef<HTMLDivElement, PDFDocumentProps>(
               backgroundColor: 'white',
             }}
           >
-            {/* Header */}
+            
             {settings.headerText && (
               <div
                 style={{
@@ -413,7 +413,7 @@ export const PDFDocument = React.forwardRef<HTMLDivElement, PDFDocumentProps>(
               </div>
             )}
 
-            {/* Questions List */}
+            
             {questions.map((q) => (
               <QuestionComponent
                 key={q.questionNumber}
@@ -423,7 +423,7 @@ export const PDFDocument = React.forwardRef<HTMLDivElement, PDFDocumentProps>(
               />
             ))}
 
-            {/* Footer */}
+            
             {settings.footerText && (
               <div
                 style={{

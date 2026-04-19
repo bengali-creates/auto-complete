@@ -64,7 +64,7 @@ const PDFPreview = dynamic(
 
 type Tab = 'input' | 'editor' | 'preview';
 
-/** Bento card wrapper */
+
 function BentoCard({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
     <div
@@ -168,7 +168,7 @@ export default function HomePage() {
     <TooltipProvider>
       <div className="min-h-screen text-white relative">
 
-        {/* ─── BACKGROUND — z-0, pointer-events-none so it never blocks clicks ─── */}
+        
         <div
           className="fixed inset-0 pointer-events-none"
           style={{ zIndex: 0 }}
@@ -188,13 +188,13 @@ export default function HomePage() {
           />
         </div>
 
-        {/* All real content lives above z-0 */}
+        
         <div className="relative" style={{ zIndex: 1 }}>
 
-          {/* ─── HEADER ─── */}
+          
           <header className="sticky top-0 z-50 border-b border-white/[0.06] bg-[#080808]/80 backdrop-blur-xl">
             <div className="w-full mx-auto px-6 h-16 flex items-center justify-between">
-              {/* Wordmark */}
+              
               <div className="w-full flex">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-900/40">
@@ -219,7 +219,7 @@ export default function HomePage() {
             </div>
           </div>
           </div>
-              {/* API controls */}
+              
               <div className="flex items-center gap-2">
                 <Select value={provider} onValueChange={(v) => setProvider(v as ApiProvider)}>
                   <SelectTrigger className="h-9 w-[140px] bg-white/5 border-white/10 text-white/80 text-xs focus:ring-violet-500/30 hover:bg-white/8 transition-colors">
@@ -271,9 +271,9 @@ export default function HomePage() {
 
          
 
-          {/* ─── MAIN ─── */}
+          
           <main className="max-w-6xl mx-auto px-6 py-8">
-            {/* Error */}
+            
             {error && (
               <div className="mb-6 flex items-center gap-3 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-300 text-sm">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
@@ -284,7 +284,7 @@ export default function HomePage() {
               </div>
             )}
 
-            {/* ── INPUT TAB ── */}
+            
             {activeTab === 'input' && (
               <div className="space-y-5">
 
@@ -303,7 +303,7 @@ export default function HomePage() {
                   <CollapsibleContent className="mt-4">
                     <BentoCard>
                       <div className="p-5">
-                        {/* Settings header */}
+                        
                         <div className="flex items-center justify-between mb-5">
                           <div className="flex items-center gap-2">
                             <Wand2 className="w-4 h-4 text-violet-400" />
@@ -423,7 +423,7 @@ export default function HomePage() {
                           </>
                         )}
 
-                        {/* Variable names */}
+                        
                         <div className="space-y-2 mb-5">
                           <Label className="text-[10px] font-medium text-white/30 uppercase tracking-wider">
                             Base Variable Names
@@ -441,7 +441,7 @@ export default function HomePage() {
 
                         <Separator className="bg-white/5 mb-5" />
 
-                        {/* Toggles */}
+                        
                         <div className="flex flex-wrap gap-5">
                           {solverSettings.assignmentType === 'Code' && (
                             <>
@@ -476,7 +476,7 @@ export default function HomePage() {
                   </CollapsibleContent>
                 </Collapsible>
 
-                {/* Drop Zone */}
+                
                 <BentoCard
                   className={`cursor-pointer transition-all duration-300 ${
                     isDragging
@@ -514,16 +514,16 @@ export default function HomePage() {
                   </div>
                 </BentoCard>
 
-                {/* OR divider */}
+                
                 <div className="flex items-center gap-4 text-white/15 text-xs">
                   <div className="flex-1 h-px bg-white/8" />
                   <span className="font-mono text-white/25">OR</span>
                   <div className="flex-1 h-px bg-white/8" />
                 </div>
 
-                {/* ── Scrollable Textarea ── */}
+                
                 <BentoCard>
-                  {/* Fixed-height scroll area so the card never grows too tall */}
+                  
                   <ScrollArea className="h-56 w-full rounded-2xl">
                     <Textarea
                       value={assignment}
@@ -538,7 +538,7 @@ export default function HomePage() {
                   </ScrollArea>
                 </BentoCard>
 
-                {/* Solve Button */}
+                
                 <button
                   onClick={handleSolve}
                   disabled={isLoading || !assignment.trim()}
@@ -567,7 +567,7 @@ export default function HomePage() {
               </div>
             )}
 
-            {/* ── EDITOR TAB ── */}
+            
             {activeTab === 'editor' && hasResults && (
               <BentoCard>
                 <div className="p-6">
@@ -581,7 +581,7 @@ export default function HomePage() {
               </BentoCard>
             )}
 
-            {/* ── PREVIEW TAB ── */}
+            
             {activeTab === 'preview' && hasResults && (
               <div className="space-y-5">
                 <BentoCard>
@@ -600,7 +600,7 @@ export default function HomePage() {
             )}
           </main>
 
-          {/* ─── FOOTER ─── */}
+          
           <footer className="border-t border-white/[0.04] py-6 text-center">
             <div className="flex items-center justify-center gap-2 text-xs text-white/20">
               <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
@@ -608,7 +608,7 @@ export default function HomePage() {
             </div>
           </footer>
 
-        </div>{/* end z-1 wrapper */}
+        </div>
       </div>
     </TooltipProvider>
   );

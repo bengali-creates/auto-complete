@@ -27,7 +27,7 @@ export function MarkdownEditor({ questions, onChange, rawMarkdown, onRawChange }
     onChange(updated);
   };
 
-  /* ── RAW MODE ──────────────────────────────────────────────────── */
+  
   if (mode === 'raw') {
     return (
       <div className="space-y-4">
@@ -59,10 +59,10 @@ export function MarkdownEditor({ questions, onChange, rawMarkdown, onRawChange }
     );
   }
 
-  /* ── VISUAL MODE ───────────────────────────────────────────────── */
+  
   return (
     <div className="space-y-4">
-      {/* Header */}
+      
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <div className="w-1 h-4 bg-violet-500 rounded-full" />
@@ -85,7 +85,7 @@ export function MarkdownEditor({ questions, onChange, rawMarkdown, onRawChange }
         </Button>
       </div>
 
-      {/* Question tabs */}
+      
       <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
         {questions.map((q, index) => (
           <button
@@ -103,10 +103,10 @@ export function MarkdownEditor({ questions, onChange, rawMarkdown, onRawChange }
         ))}
       </div>
 
-      {/* Active question card */}
+      
       {questions[activeQuestion] && (
         <div className="bg-zinc-950 border border-zinc-800/80 rounded-2xl overflow-hidden shadow-xl shadow-black/40">
-          {/* Card header */}
+          
           <div className="flex items-center gap-3 px-5 py-4 border-b border-zinc-800/80 bg-zinc-900/40">
             <div className="w-7 h-7 rounded-lg bg-violet-600/20 border border-violet-600/30 flex items-center justify-center shrink-0">
               <span className="text-[11px] font-bold text-violet-400">{questions[activeQuestion].questionNumber}</span>
@@ -120,7 +120,7 @@ export function MarkdownEditor({ questions, onChange, rawMarkdown, onRawChange }
           </div>
 
           <div className="px-5 py-5 space-y-5">
-            {/* Problem Statement */}
+            
             <div className="space-y-2">
               <Label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
                 Problem Statement
@@ -136,7 +136,7 @@ export function MarkdownEditor({ questions, onChange, rawMarkdown, onRawChange }
 
             <Separator className="bg-zinc-800/60" />
 
-            {/* Code Editor */}
+            
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
@@ -150,9 +150,9 @@ export function MarkdownEditor({ questions, onChange, rawMarkdown, onRawChange }
                 </Badge>
               </div>
 
-              {/* Code area with line numbers */}
+              
               <div className="relative rounded-xl overflow-hidden border border-zinc-800 bg-[#0a0a0a] shadow-inner">
-                {/* Top bar */}
+                
                 <div className="flex items-center gap-1.5 px-4 py-2 bg-zinc-900/80 border-b border-zinc-800">
                   <span className="w-2.5 h-2.5 rounded-full bg-zinc-700" />
                   <span className="w-2.5 h-2.5 rounded-full bg-zinc-700" />
@@ -161,13 +161,13 @@ export function MarkdownEditor({ questions, onChange, rawMarkdown, onRawChange }
                 </div>
 
                 <div className="relative flex">
-                  {/* Line numbers */}
+                  
                   <div className="select-none w-10 shrink-0 border-r border-zinc-800/60 bg-zinc-900/20 flex flex-col items-end pt-3 pb-3 px-2.5 pointer-events-none">
                     {Array.from({ length: Math.min(15, questions[activeQuestion].code.split('\n').length) }).map((_, i) => (
                       <span key={i} className="text-[9px] font-mono text-zinc-700 leading-5">{i + 1}</span>
                     ))}
                   </div>
-                  {/* Textarea */}
+                  
                   <textarea
                     value={questions[activeQuestion].code}
                     onChange={(e) => updateQuestion(activeQuestion, 'code', e.target.value)}
@@ -183,7 +183,7 @@ export function MarkdownEditor({ questions, onChange, rawMarkdown, onRawChange }
 
             <Separator className="bg-zinc-800/60" />
 
-            {/* Output */}
+            
             <div className="space-y-2">
               <Label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Output</Label>
               <Textarea
@@ -197,7 +197,7 @@ export function MarkdownEditor({ questions, onChange, rawMarkdown, onRawChange }
               />
             </div>
 
-            {/* Explanation */}
+            
             <div className="space-y-2">
               <Label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
                 Explanation{' '}

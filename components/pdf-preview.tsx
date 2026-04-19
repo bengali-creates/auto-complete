@@ -16,7 +16,7 @@ export function PDFPreview({ questions, settings, assignmentType = 'Code' }: PDF
   const componentRef = useRef<HTMLDivElement>(null);
   const [isPrinting, setIsPrinting] = useState(false);
 
-  // Convert px to mm (1px ≈ 0.264583mm at 96dpi)
+  
   const pxToMm = (px: number) => Math.round(px * 0.264583);
   
   const marginTopMm = pxToMm(settings.pageMarginTop ?? 35);
@@ -33,8 +33,8 @@ export function PDFPreview({ questions, settings, assignmentType = 'Code' }: PDF
     onAfterPrint: () => {
       setIsPrinting(false);
     },
-    // CRITICAL: This pageStyle is injected into the print iframe
-    // It MUST define @page margins to apply to ALL printed pages
+    
+    
     pageStyle: `
       @page {
         size: A4 portrait;
@@ -73,7 +73,7 @@ export function PDFPreview({ questions, settings, assignmentType = 'Code' }: PDF
 
   return (
     <div className="space-y-4 ">
-      {/* Action Buttons */}
+      
       <div className="flex flex-col items-center">
         <Button
           onClick={() => handlePrint()}
@@ -95,9 +95,9 @@ export function PDFPreview({ questions, settings, assignmentType = 'Code' }: PDF
         </div>
       </div>
 
-      {/* Visual A4 Page Container */}
+      
       <div className="flex justify-center  p-2 rounded-lg overflow-y-auto max-h-[800px]">
-        {/* Aspect Ratio A4 (210x297mm) approximate visual scale */}
+        
         <div className=" shadow-2xl rounded-sm w-full max-w-[210mm] min-h-[297mm]">
           <PDFDocument
             ref={componentRef}

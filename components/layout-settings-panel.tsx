@@ -12,7 +12,7 @@ interface LayoutSettingsPanelProps {
   onChange: (settings: PDFLayoutSettings) => void;
 }
 
-/* ─── Dark slider ─────────────────────────────────────────────── */
+
 function DarkSlider({
   min, max, step, value, onChange, label, display, title,
 }: {
@@ -34,7 +34,7 @@ function DarkSlider({
         </span>
       </div>
       <div className="relative h-6 flex items-center group">
-        {/* Track bg */}
+        
         <div className="absolute inset-x-0 h-[4px] bg-zinc-800 rounded-full overflow-hidden border border-zinc-700/40">
           <div
             className="absolute left-0 top-0 h-full rounded-full transition-all duration-100"
@@ -45,7 +45,7 @@ function DarkSlider({
             }}
           />
         </div>
-        {/* Native range (invisible but interactive) */}
+        
         <input
           type="range"
           min={min} max={max} step={step} value={value}
@@ -53,7 +53,7 @@ function DarkSlider({
           className="absolute inset-0 w-full opacity-0 cursor-pointer h-6"
           style={{ zIndex: 2 }}
         />
-        {/* Thumb */}
+        
         <div
           className="absolute w-4 h-4 rounded-full pointer-events-none transition-all duration-100 group-hover:scale-110"
           style={{
@@ -67,7 +67,7 @@ function DarkSlider({
   );
 }
 
-/* ─── Segment group ───────────────────────────────────────────── */
+
 function SegmentGroup<T extends string>({
   options, value, onChange, renderLabel,
 }: {
@@ -93,7 +93,7 @@ function SegmentGroup<T extends string>({
   );
 }
 
-/* ─── Checkbox toggle ─────────────────────────────────────────── */
+
 function CheckToggle({
   checked, onChange, label, title, wide = false,
 }: {
@@ -110,7 +110,7 @@ function CheckToggle({
         wide && 'col-span-2',
       )}
     >
-      {/* Custom checkbox */}
+      
       <div className={cn(
         'w-4 h-4 rounded border-[1.5px] flex items-center justify-center shrink-0 transition-all duration-150',
         checked ? 'bg-violet-600 border-violet-500' : 'border-zinc-600 bg-zinc-900',
@@ -127,7 +127,7 @@ function CheckToggle({
   );
 }
 
-/* ─── Section header ──────────────────────────────────────────── */
+
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex items-center gap-2 mb-3">
@@ -137,7 +137,7 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   );
 }
 
-/* ─── Panel card ──────────────────────────────────────────────── */
+
 function PanelCard({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
     <div className={cn(
@@ -150,7 +150,7 @@ function PanelCard({ children, className = '' }: { children: React.ReactNode; cl
   );
 }
 
-/* ─── Main component ──────────────────────────────────────────── */
+
 export function LayoutSettingsPanel({ settings, onChange }: LayoutSettingsPanelProps) {
   const update = <K extends keyof PDFLayoutSettings>(key: K, value: PDFLayoutSettings[K]) =>
     onChange({ ...settings, [key]: value });
@@ -170,7 +170,7 @@ export function LayoutSettingsPanel({ settings, onChange }: LayoutSettingsPanelP
 
   return (
     <div className="space-y-5">
-      {/* ── Header ── */}
+      
       <div className="flex items-start justify-between">
         <div>
           <h3 className="text-sm font-bold text-white tracking-tight">PDF Layout & Typography</h3>
@@ -188,10 +188,10 @@ export function LayoutSettingsPanel({ settings, onChange }: LayoutSettingsPanelP
         </Button>
       </div>
 
-      {/* ── Bento grid ── */}
+      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
 
-        {/* Structure */}
+        
         <PanelCard>
           <SectionTitle>Structure</SectionTitle>
           <div className="space-y-3.5">
@@ -245,7 +245,7 @@ export function LayoutSettingsPanel({ settings, onChange }: LayoutSettingsPanelP
           </div>
         </PanelCard>
 
-        {/* Typography */}
+        
         <PanelCard>
           <SectionTitle>Density & Typography</SectionTitle>
           <div className="space-y-4">
@@ -276,7 +276,7 @@ export function LayoutSettingsPanel({ settings, onChange }: LayoutSettingsPanelP
           </div>
         </PanelCard>
 
-        {/* Header / Footer / Color — full width */}
+        
         <PanelCard className="md:col-span-2">
           <SectionTitle>Header & Footer</SectionTitle>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
