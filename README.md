@@ -96,5 +96,5 @@ Contributions are welcome! Whether it's adding a new solver template, improving 
 ---
 
 <p align="center">
-  Built with ❤️ for students and developers by <strong>Antigravity</strong>
+  Built with ❤️ for students and developers by 
 </p>
