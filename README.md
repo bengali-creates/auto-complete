@@ -96,5 +96,5 @@ Contributions are welcome! Whether it's adding a new solver template, improving 
 ---
 
 <p align="center">
-  Built with ❤️ for students and developers by 
+  Built with ❤️ for students and developers by <a href="https://github.com/bengali-creates">bengali-creates</a>
 </p>

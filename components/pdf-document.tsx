@@ -30,11 +30,11 @@ function CodeWithLineNumbers({
         <div key={index} style={{ display: 'flex', flexDirection: 'row' }}>
           <span
             style={{
-              color: '#9ca3af',
+              color: '#6b7280',
               marginRight: '8px',
               minWidth: '16px',
               textAlign: 'right',
-              fontSize: `${fontSize - 2}px`,
+              fontSize: `${fontSize - 2}pt`,
               userSelect: 'none',
             }}
           >
@@ -69,8 +69,8 @@ function QuestionSideBySide({
     >
       <div
         style={{
-          fontSize: `${settings.fontSize - 1}px`,
-          color: '#333',
+          fontSize: `${settings.fontSize - 1}pt`,
+          color: '#000',
           marginBottom: `${settings.paragraphSpacing ?? 10}px`,
           lineHeight: settings.lineHeight ?? 1.4,
           whiteSpace: 'pre-wrap',
@@ -87,9 +87,9 @@ function QuestionSideBySide({
               backgroundColor: '#ffffff',
               padding: settings.spacingStyle === 'compact' ? '6px' : '10px',
               borderRadius: '4px',
-              fontFamily: 'Courier, monospace',
-              fontSize: `${settings.fontSize - 2}px`,
-              color: '#1a1a1a',
+              fontFamily: 'Consolas, "Courier New", Courier, monospace',
+              fontSize: `${settings.fontSize - 2}pt`,
+              color: '#000',
               border: '1px dashed #d1d5db',
               lineHeight: settings.lineHeight ?? 1.4,
               float: 'right',
@@ -102,9 +102,9 @@ function QuestionSideBySide({
           >
             <div
               style={{
-                fontSize: `${settings.fontSize - 1}px`,
+                fontSize: `${settings.fontSize - 1}pt`,
                 fontWeight: 'bold',
-                color: settings.headingColor || '#c75000',
+                color: settings.headingColor || '#1a1a1a',
                 marginBottom: '6px',
               }}
             >
@@ -115,9 +115,9 @@ function QuestionSideBySide({
               <>
                 <div
                   style={{
-                    fontSize: `${settings.fontSize - 1}px`,
+                    fontSize: `${settings.fontSize - 1}pt`,
                     fontWeight: 'bold',
-                    color: settings.headingColor || '#c75000',
+                    color: settings.headingColor || '#1a1a1a',
                     marginBottom: '6px',
                     marginTop: '12px',
                   }}
@@ -126,8 +126,8 @@ function QuestionSideBySide({
                 </div>
                 <div
                   style={{
-                    fontSize: `${settings.fontSize - 1}px`,
-                    color: '#444',
+                    fontSize: `${settings.fontSize - 1}pt`,
+                    color: '#111',
                     lineHeight: settings.lineHeight ?? 1.4,
                     whiteSpace: 'pre-wrap',
                   }}
@@ -143,9 +143,9 @@ function QuestionSideBySide({
         <div>
           <div
             style={{
-              fontSize: `${settings.fontSize - 1}px`,
+              fontSize: `${settings.fontSize - 1}pt`,
               fontWeight: 'bold',
-              color: settings.headingColor || '#c75000',
+              color: settings.headingColor || '#1a1a1a',
               marginBottom: '6px',
               marginTop: '10px',
             }}
@@ -155,9 +155,9 @@ function QuestionSideBySide({
           <div
             style={{
               padding: settings.spacingStyle === 'compact' ? '2px' : '4px',
-              fontFamily: 'Courier, monospace',
-              fontSize: `${settings.fontSize - 2}px`,
-              color: '#1a1a1a',
+              fontFamily: 'Consolas, "Courier New", Courier, monospace',
+              fontSize: `${settings.fontSize - 2}pt`,
+              color: '#000',
               lineHeight: settings.lineHeight ?? 1.4,
               whiteSpace: 'pre-wrap',
               wordBreak: 'break-all',
@@ -206,8 +206,8 @@ function QuestionStacked({
     >
       <div
         style={{
-          fontSize: `${settings.fontSize - 1}px`,
-          color: '#333',
+          fontSize: `${settings.fontSize - 1}pt`,
+          color: '#000',
           marginBottom: `${settings.paragraphSpacing ?? 10}px`,
           lineHeight: settings.lineHeight ?? 1.4,
           whiteSpace: 'pre-wrap',
@@ -218,9 +218,9 @@ function QuestionStacked({
 
       <div
         style={{
-          fontSize: `${settings.fontSize - 1}px`,
+          fontSize: `${settings.fontSize - 1}pt`,
           fontWeight: 'bold',
-          color: settings.headingColor || '#c75000',
+          color: settings.headingColor || '#1a1a1a',
           marginBottom: '6px',
           marginTop: '10px',
         }}
@@ -230,9 +230,9 @@ function QuestionStacked({
       <div
         style={{
           padding: settings.spacingStyle === 'compact' ? '2px' : '4px',
-          fontFamily: 'Courier, monospace',
-          fontSize: `${settings.fontSize - 2}px`,
-          color: '#1a1a1a',
+          fontFamily: 'Consolas, "Courier New", Courier, monospace',
+          fontSize: `${settings.fontSize - 2}pt`,
+          color: '#000',
           lineHeight: settings.lineHeight ?? 1.4,
           whiteSpace: 'pre-wrap',
           wordBreak: 'break-all',
@@ -249,9 +249,9 @@ function QuestionStacked({
         <>
           <div
             style={{
-              fontSize: `${settings.fontSize - 1}px`,
+              fontSize: `${settings.fontSize - 1}pt`,
               fontWeight: 'bold',
-              color: settings.headingColor || '#c75000',
+              color: settings.headingColor || '#1a1a1a',
               marginBottom: '6px',
               marginTop: '10px',
             }}
@@ -263,9 +263,9 @@ function QuestionStacked({
               backgroundColor: '#ffffff',
               padding: settings.spacingStyle === 'compact' ? '6px' : '10px',
               borderRadius: '4px',
-              fontFamily: 'Courier, monospace',
-              fontSize: `${settings.fontSize - 2}px`,
-              color: '#1a1a1a',
+              fontFamily: 'Consolas, "Courier New", Courier, monospace',
+              fontSize: `${settings.fontSize - 2}pt`,
+              color: '#000',
               border: '1px dashed #d1d5db',
               lineHeight: settings.lineHeight ?? 1.4,
               whiteSpace: 'pre-wrap',
@@ -281,9 +281,9 @@ function QuestionStacked({
         <>
           <div
             style={{
-              fontSize: `${settings.fontSize - 1}px`,
+              fontSize: `${settings.fontSize - 1}pt`,
               fontWeight: 'bold',
-              color: settings.headingColor || '#c75000',
+              color: settings.headingColor || '#1a1a1a',
               marginBottom: '6px',
               marginTop: '10px',
             }}
@@ -292,8 +292,8 @@ function QuestionStacked({
           </div>
           <div
             style={{
-              fontSize: `${settings.fontSize - 1}px`,
-              color: '#444',
+              fontSize: `${settings.fontSize - 1}pt`,
+              color: '#111',
               lineHeight: settings.lineHeight ?? 1.4,
               whiteSpace: 'pre-wrap',
             }}
@@ -393,9 +393,10 @@ export const PDFDocument = React.forwardRef<HTMLDivElement, PDFDocumentProps>(
           <div
             className="pdf-content-wrapper"
             style={{
-              fontFamily: 'Helvetica, Arial, sans-serif',
-              fontSize: `${settings.fontSize}px`,
+              fontFamily: 'Calibri, "Segoe UI", Helvetica, Arial, sans-serif',
+              fontSize: `${settings.fontSize}pt`,
               backgroundColor: 'white',
+              color: '#000',
             }}
           >
             

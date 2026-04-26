@@ -135,6 +135,7 @@ export default function HomePage() {
       if (!data.success) throw new Error(data.error || 'Failed to solve assignment');
       setQuestions(data.questions);
       setRawMarkdown(data.rawMarkdown);
+      setAssignment(''); // Clear the input after successful solve
       setActiveTab('editor');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
